@@ -6,15 +6,13 @@
     <title>WENRY KINGDOM - Мини-приложение Telegram</title>
     <style>
         body {
-            background-color: #121212; /* Твой желаемый цвет фона */
-            color: #ffffff; /* Белый цвет текста для контраста */
+            background-color: #121212; /* Черный фон */
             font-family: 'Arial', sans-serif; /* Более универсальный шрифт */
-            display: flex; /* Используем flexbox для компоновки */
-            flex-direction: column; /* Элементы будут располагаться столбиком */
-            align-items: center; /* Горизонтальное центрирование всех элементов */
+            display: flex; /* Используем flexbox */
+            flex-direction: column; /* Элементы располагаются столбиком */
+            align-items: center; /* Горизонтальное центрирование элементов */
             min-height: 100vh; /* Минимальная высота, чтобы фон занял весь экран */
             margin: 0; /* Убираем стандартные отступы у body */
-            padding-top: 50px; /* Отступ сверху для логотипа и остального контента */
             box-sizing: border-box; /* Чтобы padding не влиял на общую высоту */
         }
         .logo {
@@ -22,23 +20,12 @@
             font-size: 2.8em; /* Крупный размер шрифта для логотипа */
             font-weight: bold; /* Жирный шрифт */
             text-transform: uppercase; /* Все буквы заглавные */
-            margin-bottom: 50px; /* Отступ после логотипа, чтобы отделить его от основного контента */
+            margin-top: 30px; /* Отступ сверху для логотипа */
             letter-spacing: 2px; /* Небольшой межбуквенный интервал для читаемости */
-        }
-        .main-content {
-            text-align: center; /* Центрируем текст внутри этого блока */
-        }
-        h1 {
-            margin-top: 0; /* Убираем верхний отступ у H1, так как есть отступ у body и margin-bottom у logo */
         }
     </style>
 </head>
 <body>
     <div class="logo">WENRY KINGDOM</div>
-
-    <div class="main-content">
-        <h1>Привет! Это оболочка мини-приложения Telegram.</h1>
-        <p>Здесь будет размещаться твой контент.</p>
-    </div>
 </body>
 </html>
