@@ -3,367 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WENRY KINGDOM - SMS Рассылка</title>
-    <style>
-        /* Стили для всей страницы */
-        body {
-            background-color: #e0e0e0; /* Серый фон, как на скриншоте */
-            font-family: 'Roboto', sans-serif; /* Стандартный шрифт Android/Telegram */
-            margin: 0;
-            padding: 0;
-            color: #333; /* Темный цвет текста по умолчанию */
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* Центрируем содержимое по горизонтали */
-            min-height: 100vh; /* Занимаем весь экран */
-            box-sizing: border-box;
-            padding-bottom: 70px; /* Отступ снизу для фиксированной навигационной панели */
-        }
-
-        /* Верхняя панель (шапка) */
-        .header {
-            width: 100%;
-            background-color: #ffffff; /* Белый фон шапки */
-            padding: 15px 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08); /* Легкая тень */
-            display: flex;
-            justify-content: space-between; /* Распределяем элементы по краям */
-            align-items: center;
-            position: sticky; /* Фиксируем шапку сверху */
-            top: 0;
-            z-index: 1000; /* Чтобы была поверх других элементов */
-        }
-        .header .left-icons {
-            display: flex;
-            align-items: center;
-            font-size: 1.5em; /* Размер иконок (приблизительно) */
-        }
-        .header .left-icons .close-icon {
-            margin-right: 15px; /* Отступ справа от крестика */
-            cursor: pointer;
-        }
-        .header .title {
-            font-size: 1.2em;
-            font-weight: 500;
-        }
-        .header .right-icons {
-            display: flex;
-            align-items: center;
-            font-size: 1.5em; /* Размер иконок (приблизительно) */
-        }
-        .header .right-icons .arrow-icon {
-            margin-right: 10px;
-            cursor: pointer;
-        }
-        .header .right-icons .dots-icon {
-            cursor: pointer;
-        }
-
-        /* Блок баланса */
-        .balance-block {
-            width: 90%; /* Ширина блока */
-            max-width: 500px; /* Ограничим ширину для лучшего вида на больших экранах */
-            margin-top: 15px;
-            background-color: #2196F3; /* Синий цвет, как на скриншоте */
-            color: #ffffff;
-                        border-radius: 10px;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 8px rgba(33,150,243,0.2); /* Тень для блока */
-        }
-        .balance-block .balance-info {
-            display: flex;
-            flex-direction: column;
-        }
-        .balance-block .balance-label {
-            font-size: 0.9em;
-            margin-bottom: 5px;
-            opacity: 0.8;
-        }
-        .balance-block .balance-value {
-            font-size: 1.8em;
-            font-weight: bold;
-        }
-        .balance-block .wallet-icon {
-            font-size: 2.5em; /* Размер иконки кошелька */
-            opacity: 0.7;
-        }
-
-        /* Приветствие */
-        .greeting {
-            width: 90%;
-            max-width: 500px;
-            margin: 25px 0;
-            font-size: 1.3em;
-            font-weight: 500;
-            color: #333; /* Цвет текста приветствия */
-        }
-
-        /* Блок вкладок (верхний, SMS / МАГАЗИН / ПРОФИЛЬ) */
-        .tabs {
-            width: 90%;
-            max-width: 500px;
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #ccc; /* Разделитель */
-        }
-        .tabs .tab {
-            padding: 12px 20px;
-            font-weight: 500;
-            cursor: pointer;
-            position: relative;
-            color: #888; /* Цвет неактивных вкладок */
-        }
-        .tabs .tab.active {
-            color: #333; /* Цвет активной вкладки */
-        }
-        .tabs .tab.active::after { /* Подчеркивание активной вкладки */
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 70%;
-            height: 2px;
-            background-color: #2196F3; /* Синий цвет подчеркивания */
-        }
-
-        /* Основной контент формы */
-        .form-section {
-            width: 90%;
-            max-width: 500px;
-            margin-bottom: 20px;
-        }
-        .form-section h2 {
-            font-size: 1.2em;
-            margin-bottom: 15px;
-            font-weight: 500;
-        }
-        .form-section label {
-            font-size: 0.9em;
-            color: #888; /* Цвет подписей к полям */
-            margin-bottom: 5px;
-            display: block; /* Чтобы лейбл был на отдельной строке */
-        }
-        .form-section input[type="text"],
-        .form-section textarea {
-            width: calc(100% - 20px); /* Учитываем padding */
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 1em;
-            margin-bottom: 15px;
-            background-color: #ffffff; /* Белый фон полей ввода */
-        }
-        .form-section textarea {
-            min-height: 80px; /* Минимальная высота текстового поля */
-            resize: vertical; /* Разрешаем изменять размер по вертикали */
-        }
-        .form-section input[type="text"]::placeholder,
-        .form-section textarea::placeholder {
-            color: #aaa; /* Цвет плейсхолдера */
-        }
-
-        /* Выпадающий список количества */
-        .quantity-section {
-            width: 90%;
-            max-width: 500px;
-            margin-bottom: 30px;
-        }
-        .quantity-section label {
-            font-size: 0.9em;
-            color: #888;
-            margin-bottom: 5px;
-            display: block;
-        }
-        .quantity-section .select-wrapper {
-            position: relative;
-            width: 100%;
-        }
-        .quantity-section select {
-            width: 100%;
-            padding: 12px 40px 12px 15px; /* Отступ слева для текста, справа для стрелки */
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 1em;
-            background-color: #ffffff;
-            appearance: none; /* Убираем стандартный вид селекта */
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            cursor: pointer;
-        }
-        .quantity-section .select-arrow { /* Стрелка вниз */
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.2em;
-            color: #888;
-            pointer-events: none; /* Чтобы стрелка не мешала клику на селект */
-        }
-
-        /* Кнопка "Заказать рассылку" */
-        .submit-button {
-            width: 90%;
-            max-width: 500px;
-            padding: 15px;
-            background-color: #2196F3; /* Синий цвет кнопки */
-            color: #ffffff;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.2em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            box-shadow: 0 4px 8px rgba(33,150,243,0.2);
-            margin-bottom: 20px; /* Отступ перед нижней навигацией */
-        }
-        .submit-button:hover {
-            background-color: #1976D2; /* Темнее при наведении */
-        }
-
-        /* Нижняя навигационная панель */
-        .bottom-nav {
-            width: 100%;
-            height: 65px; /* Немного увеличена высота для иконки и текста */
-            background-color: #ffffff;
-            display: flex;
-            justify-content: space-around; /* Равномерное распределение элементов */
-            align-items: center;
-            position: fixed; /* Фиксируем внизу */
-            bottom: 0;
-            left: 0;
-            box-shadow: 0 -2px 4px rgba(0,0,0,0.08);
-            z-index: 1000; /* Чтобы была поверх других элементов */
-        }
-        .bottom-nav .nav-item {
-            display: flex;
-            flex-direction: column; /* Иконка сверху, текст снизу */
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1; /* Растягиваем элементы, чтобы они заняли всю ширину */
-            cursor: pointer;
-            color: #888; /* Цвет неактивных иконок и текста */
-            font-size: 0.8em; /* Размер текста под иконкой */
-            padding: 5px 0;
-            transition: color 0.2s ease;
-        }
-        .bottom-nav .nav-item .material-icons {
-            font-size: 1.8em; /* Размер иконки */
-            margin-bottom: 3px; /* Отступ между иконкой и текстом */
-        }
-        .bottom-nav .nav-item.active {
-            color: #2196F3; /* Активный элемент синий */
-        }
-
-        /* --- Иконки --- */
-        /* Подключение библиотеки иконок Material Icons уже было */
-        .material-icons {
-            font-family: 'Material Icons';
-            font-weight: normal;
-            font-style: normal;
-            font-size: inherit;
-            display: inline-block;
-            line-height: 1;
-            text-transform: none;
-            letter-spacing: normal;
-            word-wrap: normal;
-            white-space: nowrap;
-            direction: ltr;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* Убираем верхний отступ у body, чтобы избежать прокрутки, если контент небольшой */
-        html, body {
-            height: 100%;
-        }
-    </style>
-    <!-- Подключение библиотеки иконок Material Icons -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Мини-приложение SMS</title>
+    <link rel="stylesheet" href="style.css"> <!-- Предполагается, что CSS файл называется style.css -->
 </head>
 <body>
 
-    <!-- Верхняя панель -->
-    <div class="header">
-        <div class="left-icons">
-            <i class="material-icons close-icon">close</i>
-            <span class="title">Test</span>
+    <div class="container">
+        <header class="welcome-header">
+            Добро пожаловать
+        </header>
+
+        <div class="balance-block">
+            <div class="balance-text">
+                <span class="balance-label">Ваш баланс</span>
+                <span class="balance-amount">0 SMS</span>
+            </div>
+            <div class="balance-icon">
+                <!-- Предполагаемый SVG или иконка font-awesome -->
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 8L14 12L10 16" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </div>
         </div>
-        <div class="right-icons">
-            <i class="material-icons arrow-icon">keyboard_arrow_down</i>
-            <i class="material-icons dots-icon">more_vert</i>
-        </div>
-    </div>
 
-    <!-- Блок баланса -->
-    <div class="balance-block">
-        <div class="balance-info">
-            <span class="balance-label">Ваш баланс</span>
-            <span class="balance-value">0 SMS</span>
-        </div>
-        <i class="material-icons wallet-icon">account_balance_wallet</i>
-    </div>
+        <nav class="tabs">
+            <a href="#" class="tab-item active">SMS</a>
+            <a href="#" class="tab-item">МАГАЗИН</a>
+            <a href="#" class="tab-item">ПРОФИЛЬ</a>
+        </nav>
 
-    <!-- Приветствие -->
-    <div class="greeting">Привет, венри | монарх!</div>
+        <main class="content">
+            <h2 class="section-title">Отправить сообщение</h2>
 
-    <!-- Вкладки (верхний навигатор) -->
-    <div class="tabs">
-        <div class="tab active">SMS</div>
-        <div class="tab">МАГАЗИН</div>
-        <div class="tab">ПРОФИЛЬ</div>
-    </div>
+            <div class="form-group">
+                <label for="phone">Номер телефона</label>
+                <input type="text" id="phone" placeholder="79991234567">
+            </div>
 
-    <!-- Секция формы -->
-    <div class="form-section">
-        <h2>Отправить сообщение</h2>
+            <div class="form-group">
+                <label for="message">Текст сообщения</label>
+                <textarea id="message" placeholder="Введите текст или выберите шаблон" rows="4"></textarea>
+            </div>
 
-        <label for="phone-number">Номер телефона</label>
-        <input type="text" id="phone-number" placeholder="79991234567">
+            <div class="form-group">
+                <label for="quantity">Количество отправок</label>
+                <div class="quantity-input">
+                    <input type="text" id="quantity" value="1 SMS" readonly>
+                    <div class="quantity-arrow">
+                        <!-- Стрелка вниз -->
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 10L12 14L16 10" stroke="#333" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
 
-        <label for="message-text">Текст сообщения</label>
-        <textarea id="message-text" placeholder="Введите текст или выберите шаблон"></textarea>
-    </div>
-
-    <!-- Секция количества -->
-    <div class="quantity-section">
-        <label for="sms-count">Количество отправок</label>
-        <div class="select-wrapper">
-            <select id="sms-count">
-                <option value="1">1 SMS</option>
-                <option value="5">5 SMS</option>
-                <option value="10">10 SMS</option>
-                <!-- Можно добавить больше опций -->
-            </select>
-            <i class="material-icons select-arrow">arrow_drop_down</i>
-        </div>
-    </div>
-
-    <!-- Кнопка -->
-    <button class="submit-button">Заказать рассылку</button>
-
-    <!-- Нижняя навигационная панель (новые 4 вкладки) -->
-    <div class="bottom-nav">
-        <div class="nav-item">
-            <i class="material-icons">block</i> <!-- Иконка для СПАМ (например, "заблокировать") -->
-            <span>СПАМ</span>
-        </div>
-        <div class="nav-item active"> <!-- Сделаем ПРОФИЛЬ активным по умолчанию -->
-            <i class="material-icons">person</i> <!-- Иконка для ПРОФИЛЬ -->
-            <span>ПРОФИЛЬ</span>
-        </div>
-        <div class="nav-item">
-            <i class="material-icons">payments</i> <!-- Иконка для ПОПОЛНИТЬ (например, "платежи") -->
-            <span>ПОПОЛНИТЬ</span>
-        </div>
-        <div class="nav-item">
-            <i class="material-icons">info</i> <!-- Иконка для ИНФО -->
-            <span>ИНФО</span>
-        </div>
+            <button class="primary-button">Заказать рассылку</button>
+        </main>
     </div>
 
 </body>
