@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Mailing - MiniApp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .user-id {
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        
+        .main-content {
+            padding: 25px;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+            transition: transform 0.3s;
+        }
+        
+        .section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            color: #4361ee;
+            font-weight: 600;
+        }
+        
+        .section-title i {
+            font-size: 20px;
+        }
+        
+        .balance-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .balance-card {
+            flex: 1;
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .balance-currency {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+        
+        .balance-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4361ee;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            text-align: center;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.3);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #f72585 0%, #b5179e 100%);
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4361ee;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        .payment-info {
+            background: #e7f5ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #4361ee;
+        }
+        
+        .payment-info code {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            display: block;
+            margin: 10px 0;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
+        .transaction-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .transaction-item {
+            padding: 10px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .transaction-amount {
+            font-weight: bold;
+        }
+        
+        .deposit {
+            color: #2ecc71;
+        }
+        
+        .payment {
+            color: #e74c3c;
+        }
+        
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4361ee;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: none;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            border-bottom-color: #4361ee;
+            color: #4361ee;
+            font-weight: 600;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .numbers-input {
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        .hint {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .network-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #e9ecef;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                border-radius: 0;
+            }
+            
+            .main-content {
+                padding: 15px;
+            }
+            
+            .balance-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-sms"></i> SMS Mailing</h1>
+            <p>MiniApp для массовых рассылок</p>
+            <div class="user-id" id="userId">ID: Загрузка...</div>
+        </div>
+        
+        <div class="main-content">
+            <div class="tab-container">
+                <div class="tab active" onclick="switchTab('dashboard')">📊 Дашборд</div>
+                <div class="tab" onclick="switchTab('sms')">📨 Рассылка</div>
+                <div class="tab" onclick="switchTab('deposit')">💳 Пополнение</div>
+            </div>
+            
+            <!-- Дашборд -->
+            <div id="dashboard" class="tab-content active">
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-wallet"></i> Баланс
+                    </div>
+                    <div class="balance-container">
+                        <div class="balance-card">
+                            <div class="balance-currency">💎 USDT</div>
+                            <div class="balance-amount" id="balanceUsdt">0</div>
+                        </div>
+                        <div class="balance-card">
+                            <div class="balance-currency">⚡ TON</div>
+                            <div class="balance-amount" id="balanceTon">0</div>
+                        </div>
+                    </div>
+                    <button class="btn" onclick="switchTab('deposit')">
+                        <i class="fas fa-plus-circle"></i> Пополнить баланс
+                    </button>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-history"></i> Последние транзакции
+                    </div>
+                    <div class="transaction-list" id="transactions">
+                        <div class="transaction-item">
+                            <span>Загрузка...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle"></i> Цены на услуги
+                    </div>
+                    <div class="input-group">
+                        <p><strong>💎 1 SMS = <span id="priceUsdt">1</span> USDT</strong></p>
+                        <p><strong>⚡ 1 SMS = <span id="priceTon">1.63</span> TON</strong></p>
+                    </div>
+                    <button class="btn btn-success" onclick="switchTab('sms')">
+                        <i class="fas fa-paper-plane"></i> Создать рассылку
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Отправка SMS -->
+            <div id="sms" class="tab-content">
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-mobile-alt"></i> Создание рассылки
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="phoneNumbers"><i class="fas fa-phone"></i> Номера телефонов</label>
+                        <textarea id="phoneNumbers" class="numbers-input" placeholder="Введите номера через точку с запятой (;)
+Пример:
++79991234567;
+89991234567;
+79001234567;"></textarea>
+                        <div class="hint">Каждый номер на новой строке, заканчивается точкой с запятой</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="smsText"><i class="fas fa-comment"></i> Текст СМС</label>
+                        <textarea id="smsText" placeholder="Введите текст сообщения... (максимум 1000 символов)"></textarea>
+                        <div class="hint" id="charCount">0/1000 символов</div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label><i class="fas fa-calculator"></i> Статистика</label>
+                        <div id="smsStats">
+                            <p>Номеров: <span id="numberCount">0</span></p>
+                            <p>Стоимость: <span id="costUsdt">0</span> USDT или <span id="costTon">0</span> TON</p>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="submitSmsRequest()">
+                        <i class="fas fa-paper-plane"></i> Отправить на модерацию
+                    </button>
+                    <button class="btn btn-secondary" onclick="switchTab('dashboard')">
+                        <i class="fas fa-arrow-left"></i> Назад
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Пополнение баланса -->
+            <div id="deposit" class="tab-content">
+                <div class="section">
+                    <div class="section-title">
+                        <i class="fas fa-coins"></i> Пополнение баланса
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="depositCurrency"><i class="fas fa-money-bill-wave"></i> Выберите валюту</label>
+                        <select id="depositCurrency" onchange="updateDepositInfo()">
+                            <option value="USDT">💎 USDT (TRON)</option>
+                            <option value="TON">⚡ TON</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="depositAmount"><i class="fas fa-calculator"></i> Сумма пополнения</label>
+                        <input type="number" id="depositAmount" min="10" value="10" step="0.01" onchange="updateDepositInfo()">
+                        <div class="hint">Минимальная сумма: 10</div>
+                    </div>
+                    
+                    <div class="payment-info">
+                        <h4><i class="fas fa-qrcode"></i> Информация для оплаты</h4>
+                        <p><strong>Сеть:</strong> <span id="networkInfo">TRON (TRC20)</span></p>
+                        <p><strong>Адрес:</strong></p>
+                        <code id="paymentAddress">Загрузка...</code>
+                        <p class="hint">Скопируйте адрес для пополнения</p>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="transactionHash"><i class="fas fa-hashtag"></i> Хеш транзакции</label>
+                        <input type="text" id="transactionHash" placeholder="Введите хеш (ID) транзакции после оплаты">
+                        <div class="hint">Найдите хеш транзакции в истории вашего кошелька</div>
+                    </div>
+                    
+                    <button class="btn" onclick="submitPayment()">
+                        <i class="fas fa-check-circle"></i> Отправить на проверку
+                    </button>
+                    <button class="btn btn-secondary" onclick="switchTab('dashboard')">
+                        <i class="fas fa-arrow-left"></i> Назад
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Статус сообщения -->
+            <div class="status-message" id="statusMessage"></div>
+            
+            <!-- Лоадер -->
+            <div class="loader" id="loader">
+                <div class="spinner"></div>
+                <p>Загрузка...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
