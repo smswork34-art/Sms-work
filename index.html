@@ -1,1613 +1,259 @@
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>SMS Bot — USDT TRC20 (v4)</title>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-<style>
-/* ---------------------------------------------------------------------- */
-/* 1. BASE STYLES & CONFIGURATION (CSS) */
-/* ---------------------------------------------------------------------- */
-:root{
-  --primary:#007aff; /* iOS Blue */
-  --primary-dark:#0051a8;
-  --success:#34c759;
-  --danger:#ff3b30;
-  --bg:#f2f2f7; /* iOS background */
-  --card:#ffffff; /* White background for cards */
-  --muted:#8e8e93; /* iOS secondary label */
-  --glass: rgba(255,255,255,0.85);
-  --radius:12px;
-  --ios-shadow: 0 4px 12px rgba(0,0,0,0.06);
-}
-
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  margin:0;
-  background: var(--bg);
-  color:#1c1c1e;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
-  padding:0;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-}
-
-/* App Container */
-.app-wrap{
-  max-width:460px;
-  width:100%;
-  min-height:100vh;
-  background: var(--bg);
-  box-shadow: var(--ios-shadow);
-  display:flex;
-  flex-direction:column;
-  position:relative;
-}
-
-/* Main App Card */
-.app {
-  background: var(--card); /* Main app background */
-  border-radius: 0;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-  flex:1;
-}
-
-/* Header */
-.header {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color:white;
-  padding:20px 18px 28px;
-  position:relative;
-  text-align:center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-.logo {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  font-weight:700;
-  font-size:18px;
-}
-.logo .icon {
-  background: rgba(255,255,255,0.15);
-  padding:8px;
-  border-radius:10px;
-  width:40px;height:40px;
-  display:flex;align-items:center;justify-content:center;font-size:18px;
-}
-
-/* User info */
-.user-row {
-  margin-top:16px;
-  display:flex;
-  justify-content:space-between;
-  padding:10px 15px;
-  background: rgba(255,255,255,0.1);
-  border-radius:12px;
-
-венри | монарх, [18.01.2026 13:45]
-  font-size:13px;
-  align-items:center;
-}
-
-/* Balance Card */
-.balance {
-  margin:18px;
-  padding:20px;
-  background:var(--card); /* Pure white */
-  border-radius:16px;
-  box-shadow: var(--ios-shadow); /* Use the general iOS shadow */
-}
-.balance .label { color:var(--muted); font-size:13px }
-.balance .value { font-size:38px; font-weight:700; color:var(--primary); margin-top:4px }
-.balance .subtitle { color:var(--muted); margin-top:4px; font-size:13px }
-
-/* Tabs Navigation */
-.tabs {
-  display:flex;
-  gap:6px;
-  padding:8px;
-  margin: 0 18px 12px;
-  background: var(--bg); /* Use the general background */
-  border-radius:14px;
-}
-.tab {
-  flex:1;
-  background:transparent;
-  border-radius:10px;
-  padding:10px 8px;
-  font-weight:600;
-  font-size:13px;
-  text-align:center;
-  color:#333;
-  cursor:pointer;
-  transition: all 0.2s ease;
-}
-.tab.active {
-  background: var(--card); /* Pure white */
-  color:var(--primary);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* Content Area */
-.content {
-  padding:18px;
-  background:var(--bg); /* General background */
-  flex:1;
-  overflow-y:auto;
-}
-
-/* Card General */
-.section-card {
-  background:var(--card); /* Pure white */
-  padding:16px;
-  border-radius:14px;
-  margin-bottom:15px;
-  box-shadow: var(--ios-shadow); /* Use the general iOS shadow */
-}
-
-/* Shop Grid */
-.shop-grid{display:grid;gap:12px}
-.pack {
-  background:var(--card); /* Pure white */
-  padding:16px;
-  border-radius:14px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  border:1px solid rgba(0,0,0,0.05);
-  transition: transform 0.1s ease;
-}
-.pack:active { transform: scale(0.98); }
-.pack .left { display:flex;flex-direction:column;gap:4px }
-.pack .sms { font-size:22px;font-weight:700;color:var(--primary) }
-.pack .desc { color:var(--muted);font-size:13px }
-.pack .price { background:var(--success); color:white; padding:8px 14px; border-radius:10px; font-weight:700; font-size:14px; cursor:pointer }
-
-/* Forms */
-.form-row{ display:flex; flex-direction:column; gap:8px; margin-bottom:12px }
-.form-label{ font-weight:600; font-size:14px; color:#333 }
-.input, textarea, select { padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.1); font-size:14px; width:100%; background:#fff; transition:border-color 0.2s }
-.input:focus, textarea:focus, select:focus { border-color: var(--primary); outline:none; }
-textarea{ min-height:96px; resize:vertical }
-.range-row{ display:flex; align-items:center; gap:12px }
-
-/* Buttons */
-.btn { display:inline-block; padding:12px 14px; border-radius:10px; font-weight:600; cursor:pointer; border:none; transition:opacity 0.2s, transform 0.1s }
-.btn:active{ transform: scale(0.98); }
-.btn-primary{ background:var(--primary); color:white }
-.btn-success{ background:var(--success); color:white }
-.btn-danger{ background:var(--danger); color:white }
-.btn-ghost{ background:transparent; color:var(--primary); border:1px solid var(--primary); }
-.btn-secondary{ background:var(--bg); color:#333; border:1px solid rgba(0,0,0,0.1); }
-.btn-sm{ padding:8px 12px; font-size:12px; border-radius:8px; }
-
-/* Modal */
-.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.4); display:none; align-items:center; justify-content:center; z-index:9999; padding:18px }
-.modal-overlay.active{ display:flex }
-.modal { width:100%; max-width:480px; background:var(--card); border-radius:18px; padding:20px; box-shadow:0 18px 48px rgba(2,6,23,0.3); max-height:90vh; overflow:auto; }
-
-/* QR */
-.qr { width:220px; height:220px; margin:15px auto; background:#fff; padding:10px; border-radius:12px; display:flex; align-items:center; justify-content:center; border:1px solid var(--bg); }
-
-/* History */
-.history-item { background:var(--card); padding:14px; b
-
-венри | монарх, [18.01.2026 13:45]
-order-radius:12px; margin-bottom:10px; border-left:4px solid var(--primary); box-shadow: var(--ios-shadow); }
-.history-item .meta{ color:var(--muted); font-size:13px; margin-top:4px }
-
-/* Admin */
-.admin-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px }
-.admin-card { padding:14px; background:var(--bg); border-radius:12px; } /* Background for admin info cards */
-.admin-item { background:var(--card); padding:12px; border-radius:10px; margin-bottom:8px; box-shadow: var(--ios-shadow); display:flex; justify-content:space-between; align-items:center; gap:10px; }
-.admin-item .actions { display:flex; gap:6px; }
-
-/* Statuses */
-.badge { padding:6px 10px; border-radius:999px; font-weight:600; font-size:12px; display:inline-block; }
-.badge.success{ background:#d4edda; color:#155724 }
-.badge.pending{ background:#fff3cd; color:#856404 }
-.badge.danger{ background:#f8d7da; color:#721c24 }
-.badge.dispatching{ background:var(--primary); color:white; } /* New status */
-
-/* Toast Notifications */
-.toast { position:fixed; right:18px; top:18px; z-index:20000; min-width:260px; border-radius:12px; padding:14px; box-shadow:0 12px 30px rgba(2,6,23,0.18); opacity:0; transition:opacity 0.3s ease; }
-.toast.active{ opacity:1; }
-.toast.info{ background:#e0f7fa; color:#006064 }
-.toast.success{ background:#e8f5e9; color:#2e7d32 }
-.toast.error{ background:#ffebee; color:#c62828 }
-
-.small{font-size:12px;color:var(--muted)}
-.footer { padding:15px 18px; font-size:12px; color:var(--muted); text-align:center; background:var(--bg); }
-
-/* PIN Screen */
-.pin-screen {
-  position:fixed; inset:0; background:var(--bg); z-index:10000; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  transition: transform 0.4s ease;
-}
-.pin-input-container { display:flex; gap:15px; margin-top:20px; }
-.pin-input { width:40px; height:40px; border-radius:50%; border:2px solid var(--muted); background:transparent; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:600; }
-.pin-input.filled { background:var(--primary); border-color:var(--primary); color:white; }
-.keypad { display:grid; grid-template-columns:repeat(3, 1fr); gap:15px; width:250px; margin-top:40px; }
-.keypad-btn { width:60px; height:60px; border-radius:50%; background:var(--card); border:1px solid rgba(0,0,0,0.1); font-size:24px; font-weight:500; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background 0.1s; }
-.keypad-btn:active { background:var(--bg); }
-.keypad-btn.empty { visibility:hidden; }
-
-/* Admin Auth Overlay */
-.admin-auth-overlay {
-  position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:10001; display:none;
-  justify-content:center; align-items:center;
-}
-.admin-auth-overlay.active { display:flex; }
-.admin-auth-box { background:var(--card); padding:25px; border-radius:16px; text-align:center; box-shadow:0 10px 30px rgba(0,0,0,0.3); width:90%; max-width:400px;}
-.admin-auth-box .small{ margin-top:10px; }
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS Mailing Bot - Панель управления</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f5f5f5; }
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .balance-card { border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .usdt-card { background: linear-gradient(135deg, #26a17b 0%, #1e7a5e 100%); color: white; }
+        .ton-card { background: linear-gradient(135deg, #0098ea 0%, #0077b5 100%); color: white; }
+        .btn-action { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; }
+        .btn-action:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+        .chat-container { height: 500px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; background: white; }
+        .message { margin: 10px; padding: 10px; border-radius: 10px; max-width: 80%; }
+        .user-message { background: #e3f2fd; margin-left: auto; }
+        .bot-message { background: #f5f5f5; margin-right: auto; }
+    </style>
 </head>
 <body>
-<div class="app-wrap">
-  <div class="app" id="app">
+    <!-- Навигация -->
+    <nav class="navbar navbar-dark mb-4">
+        <div class="container">
+            <span class="navbar-brand">📨 SMS Mailing Bot</span>
+            <div class="text-white">
+                <span id="userName"></span>
+                <button class="btn btn-sm btn-outline-light ms-3" onclick="logout()">Выйти</button>
+            </div>
+        </div>
+    </nav>
 
-    <!-- ---------------------------------------------------------------------- -->
-    <!-- 2. PIN SCREEN & ADMIN AUTH -->
-    <!-- ---------------------------------------------------------------------- -->
-    <div class="pin-screen" id="pin-screen">
-      <h3 id="pin-title">Установите PIN-код</h3>
-      <div class="pin-input-container" id="pin-inputs">
-        <div class="pin-input" data-index="0"></div>
-        <div class="pin-input" data-index="1"></div>
-        <div class="pin-input" data-index="2"></di
+    <div class="container">
+        <!-- Основной контент -->
+        <div class="row mb-4" id="authSection">
+            <div class="col-md-6 mx-auto">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3>🔐 Авторизация</h3>
+                        <p class="text-muted">Для использования бота необходимо авторизоваться в Telegram</p>
+                        <button class="btn btn-action btn-lg mt-3" onclick="loginWithTelegram()">
+                            Войти через Telegram
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-венри | монарх, [18.01.2026 13:45]
-v>
-        <div class="pin-input" data-index="3"></div>
-      </div>
-      <div class="small" id="pin-error" style="color:var(--danger); margin-top:10px; height:20px;"></div>
-      <div class="keypad" id="keypad">
-        <!-- Keypad buttons generated by JS -->
-      </div>
-      <div style="margin-top:30px">
-        <button class="btn btn-secondary" onclick="resetApp()">Сброс данных</button>
-      </div>
+        <div class="row mb-4" id="mainSection" style="display: none;">
+            <!-- Балансы -->
+            <div class="col-md-6 mb-4">
+                <div class="card balance-card usdt-card">
+                    <div class="card-body">
+                        <h5>💎 USDT Баланс</h5>
+                        <h2 id="balanceUsdt">0.00</h2>
+                        <p>1 SMS = 1 USDT</p>
+                        <button class="btn btn-light" onclick="deposit('USDT')">Пополнить</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card balance-card ton-card">
+                    <div class="card-body">
+                        <h5>⚡ TON Баланс</h5>
+                        <h2 id="balanceTon">0.00</h2>
+                        <p>1 SMS = 1.63 TON</p>
+                        <button class="btn btn-light" onclick="deposit('TON')">Пополнить</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Кнопки действий -->
+            <div class="col-12 mb-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <button class="btn btn-action btn-lg me-3" onclick="startMailing()">
+                            🚀 Запустить рассылку
+                        </button>
+                        <button class="btn btn-outline-primary btn-lg" onclick="openProfile()">
+                            👤 Профиль
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Чат с ботом -->
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>💬 Чат с ботом</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="chat-container p-3 mb-3" id="chatContainer">
+                            <div class="message bot-message">
+                                <strong>Бот:</strong> Добро пожаловать в SMS Mailing! Выберите действие.
+                            </div>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="messageInput" placeholder="Введите сообщение...">
+                            <button class="btn btn-primary" onclick="sendMessage()">Отправить</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальные окна -->
+        <div class="modal fade" id="depositModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">💳 Пополнение баланса</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body" id="depositModalBody">
+                        <!-- Контент будет заполнен JavaScript -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Admin Auth Overlay (appears after PIN if not admin, or after successful PIN for admin) -->
-    <div class="admin-auth-overlay" id="admin-auth-overlay">
-      <div class="admin-auth-box">
-        <h4 id="admin-auth-title">Доступ к Админ-Меню</h4>
-        <div class="form-row" style="margin-top:15px;">
-          <input id="admin-key-input" class="input" type="password" placeholder="Введите Мастер-ключ" />
-        </div>
-        <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="adminAuthenticate()">Войти как Админ</button>
-        <button class="btn btn-secondary" style="width:100%" onclick="skipAdminAuth()">Я не Админ</button>
-        <div class="small" id="admin-auth-error" style="color:var(--danger); margin-top:10px;"></div>
-      </div>
-    </div>
+    <!-- Скрипты -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Telegram Web App API
+        const tg = window.Telegram?.WebApp;
+        let userData = null;
 
-
-    <!-- ---------------------------------------------------------------------- -->
-    <!-- 3. MAIN APPLICATION UI -->
-    <!-- ---------------------------------------------------------------------- -->
-    <div id="main-app-content" style="display:none; flex:1; flex-direction:column;">
-      <div class="header">
-        <div class="logo">
-          <div class="icon"><i class="fa fa-sms"></i></div>
-          <div>SMS Bot — USDT TRC20</div>
-        </div>
-
-        <div class="user-row" id="user-row">
-          <div>
-            <div class="small">ID пользователя</div>
-            <div id="user-id">Загрузка...</div>
-          </div>
-          <div style="text-align:right">
-            <div class="small">Сеть / Токен</div>
-            <div>TRON • USDT (TRC20)</div>
-          </div>
-        </div>
-      </div>
-
-      <div style="padding:0 12px 0 12px">
-        <div class="balance" id="balance-card">
-          <div class="label">Ваш баланс</div>
-          <div class="value" id="balance-value">0 SMS</div>
-          <div class="subtitle" id="balance-usdt">~ 0 USDT</div>
-        </div>
-
-        <div class="tabs" role="tablist" aria-label="Главные вкладки">
-          <div class="tab active" data-tab="shop" onclick="switchTab('shop', this)"><i class="fa fa-store"></i> Магазин</div>
-          <div class="tab" data-tab="send" onclick="switchTab('send', this)"><i class="fa fa-paper-plane"></i> Отправить</div>
-          <div class="tab" data-tab="profile" onclick="switchTab('profile', this)"><i class="fa fa-user"></i> Профиль</div>
-          <div class="tab" data-tab="history" onclick="switchTab('history', this)"><i class="fa fa-history"></i> История</div>
-          <!-- Admin tab is hidden by default and shown after auth -->
-          <div class="tab admin-only" data-tab="admin" onclick="switchTab('admin', this)" id="admin-tab-btn" style="display:none"><i class="fa fa-crown"></i> Админ</div>
-        </div>
-      </div>
-
-      <div class="content" id="content">
-
-        <!-- Магазин -->
-        <div id="tab-shop">
-          <h3 style="color:#333; margin:6px 0 12px">Пакеты SMS</h3>
-          <div class="shop-grid" id="shop-grid">
-            <!-- пакеты рендерятся js -->
-          </div>
-        </div>
-
-        <!-- Отправить SMS -->
-        <div id="tab-send" style="display:none">
-
-венри | монарх, [18.01.2026 13:45]
-<h3 style="color:#333; margin:6px 0 12px">Отправить SMS</h3>
-
-          <div class="section-card">
-            <div class="form-row">
-              <label class="form-label">Номер телефона</label>
-              <input id="phone" class="input" placeholder="+7 (900) 123-45-67" />
-            </div>
-
-            <div class="form-row">
-              <label class="form-label">Текст сообщения</label>
-              <textarea id="message" maxlength="640" placeholder="Сообщение (до 640 символов)"></textarea>
-              <div class="small" style="text-align:right"><span id="char-count">0</span>/640</div>
-            </div>
-
-            <div class="form-row">
-              <label class="form-label">Приоритет отправки</label>
-              <select id="priority" class="input">
-                <option value="1" selected>Обычный — 1x</option>
-                <option value="2">Высокий — 2x</option>
-                <option value="3">Мгновенно — 3x</option>
-              </select>
-            </div>
-
-            <div class="form-row">
-              <label class="form-label">Кол-во SMS (ручное)</label>
-              <div class="range-row">
-                <input id="sms-count" type="range" min="1" max="100" value="1" style="flex:1" />
-                <div style="width:92px; text-align:right"><strong><span id="sms-count-display">1</span> SMS</strong></div>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <label class="form-label">Итого списание</label>
-              <div style="display:flex;align-items:center;justify-content:space-between">
-                <div class="small">Будет списано с вашего баланса</div>
-                <div class="badge" id="send-cost" style="background:#e0e0e0; color:#333">1 SMS</div>
-              </div>
-            </div>
-
-            <div style="display:flex;gap:10px;margin-top:15px">
-              <button class="btn btn-primary" id="send-btn" style="flex:1">Отправить SMS</button>
-              <button class="btn btn-secondary" onclick="resetSendForm()">Очистить</button>
-            </div>
-
-            <div id="send-status" style="margin-top:10px"></div>
-          </div>
-        </div>
-
-        <!-- Профиль -->
-        <div id="tab-profile" style="display:none">
-          <h3 style="color:#333; margin:6px 0 12px">Профиль пользователя</h3>
-
-          <div class="section-card">
-            <div style="display:flex;align-items:center;gap:15px">
-              <div style="width:64px;height:64px;border-radius:16px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:30px"><i class="fa fa-user"></i></div>
-              <div>
-                <div id="profile-role" style="font-weight:700;font-size:16px">Пользователь</div>
-                <div class="small" id="profile-id">ID: —</div>
-                <div class="small" id="profile-created">Создан: —</div>
-              </div>
-            </div>
-
-            <div style="margin-top:20px">
-              <div class="small">USDT TRC20 адрес для пополнения</div>
-              <div style="font-family:monospace;margin-top:8px;font-weight:500;font-size:14px">THzWYUCCq53zbxZCcbeUXppLz7MNySa5B1</div>
-              <div style="display:flex;gap:8px;margin-top:12px">
-                <button class="btn btn-secondary" onclick="copyToClipboard('THzWYUCCq53zbxZCcbeUXppLz7MNySa5B1')"><i class="fa fa-copy"></i> Скопировать адрес</button>
-                <button class="btn btn-primary" onclick="openTopUpModal()">Пополнить</button>
-              </div>
-            </div>
-            <div style="margin-top:20px">
-                <button class="btn btn-danger" onclick="resetApp()">Сбросить данные приложения</button>
-            </div>
-          </di
-
-венри | монарх, [18.01.2026 13:45]
-v>
-        </div>
-
-        <!-- История -->
-        <div id="tab-history" style="display:none">
-          <h3 style="color:#333; margin:6px 0 12px">История операций</h3>
-          <div id="history-list">
-            <!-- рендерится js -->
-          </div>
-        </div>
-
-        <!-- Админ -->
-        <div id="tab-admin" style="display:none">
-          <h3 style="color:#333; margin:6px 0 12px">Админка</h3>
-
-          <div id="admin-dashboard">
-            <div style="display:flex;gap:10px;margin-bottom:12px">
-              <div class="admin-card" style="flex:1">
-                <div class="small">Пользователей</div>
-                <div style="font-weight:800;font-size:20px" id="admin-total-users">0</div>
-              </div>
-              <div class="admin-card" style="flex:1">
-                <div class="small">Подтверждённых плат.</div>
-                <div style="font-weight:800;font-size:20px" id="admin-confirmed-payments">0</div>
-              </div>
-            </div>
-
-            <div style="display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap">
-              <button class="btn btn-primary" onclick="renderAdminUsers()">Пользователи</button>
-              <button class="btn btn-primary" onclick="renderAdminPayments()">Платежи клиентов</button>
-              <button class="btn btn-primary" onclick="renderPendingDispatch()">SMS в очереди</button>
-              <button class="btn btn-secondary" onclick="adminAddSMSModal()">Начислить SMS</button>
-              <button class="btn btn-secondary" onclick="adminExportData()">Экспорт</button>
-              <button class="btn btn-secondary" onclick="adminImportData()">Импорт</button>
-            </div>
-
-            <div id="admin-content" class="section-card">
-              <!-- наполнение js -->
-              <div class="small" style="text-align:center;padding:30px;color:var(--muted)">Выберите раздел для просмотра</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <div class="footer">
-        TRC20: THzWYUCCq53zbxZCcbeUXppLz7MNySa5B1 • Demo v4 • Данные хранятся локально
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<!-- Modal: Payment -->
-<div class="modal-overlay" id="modal-payment">
-  <div class="modal" role="dialog" aria-modal="true">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <h3 id="modal-payment-title" style="margin:0;color:var(--primary)">Оплата USDT</h3>
-      <button class="btn btn-secondary" onclick="closeModal('payment')"><i class="fa fa-times"></i></button>
-    </div>
-    <div id="modal-payment-body" style="margin-top:15px">
-      <!-- динамика -->
-    </div>
-  </div>
-</div>
-
-<!-- Modal: Admin -->
-<div class="modal-overlay" id="modal-admin">
-  <div class="modal">
-    <div style="display:flex;justify-content:space-between;align-items:center">
-      <h3 id="modal-admin-title" style="margin:0;color:var(--primary)">Админ</h3>
-      <button class="btn btn-secondary" onclick="closeModal('admin')"><i class="fa fa-times"></i></button>
-    </div>
-    <div id="modal-admin-body" style="margin-top:15px"></div>
-  </div>
-</div>
-
-<!-- Scripts -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-<script>
-/* ---------------------------------------------------------------------- */
-/* 4. JAVASCRIPT LOGIC */
-/* ---------------------------------------------------------------------- */
-
-const CONFIG = {
-  ADMIN_ID: '8155919358',               // ID пользователя, который может быть админом (измените при необходимости)
-  ADMIN_MASTER_KEY: '12345',           // Мас
-
-венри | монарх, [18.01.2026 13:45]
-тер-ключ для входа в админ-панель
-  TRC20_ADDRESS: 'THzWYUCCq53zbxZCcbeUXppLz7MNySa5B1', // Адрес для оплаты
-  USDT_RATE: 90,                        // Курс RUB/USDT
-  SMS_PACKAGES: [
-    { sms: 30, rub: 300, id: 1 },
-    { sms: 100, rub: 800, id: 2 },
-    { sms: 200, rub: 1500, id: 3 },
-    { sms: 500, rub: 3500, id: 4 }
-  ]
-};
-
-/* GLOBAL STATE */
-let currentUser = null;
-let globalState = { users: [], payments: [] };
-let isAdminAuthenticated = false; // Flag to indicate if admin has entered master key
-let pinInputStage = 'verify';     // 'verify', 'setup_start', 'setup_confirm', 'incorrect'
-let currentPinEntry = '';         // Stores the PIN being entered
-let tempPin = '';                 // Stores PIN during setup confirmation
-
-/* ---------------------------------------------------------------------- */
-/* 4.1. UTILS & STORAGE */
-/* ---------------------------------------------------------------------- */
-
-function uidRandom(){ return 'U' + Date.now().toString(36).toUpperCase().slice(-8) + Math.random().toString(36).substr(2,4).toUpperCase(); }
-function nowStr(){ return new Date().toLocaleString('ru-RU'); }
-function simpleHash(str){ // Simple non-secure hash for demo purposes
-  let hash = 0;
-  if (str.length === 0) return hash.toString(16);
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash |= 0; // Convert to 32bit integer
-  }
-  return hash.toString(16);
-}
-
-function loadGlobal(){
-  try{
-    const raw = localStorage.getItem('sms_bot_global');
-    if(raw) globalState = JSON.parse(raw);
-    else saveGlobal(); // Initialize if not found
-  }catch(e){ console.error('loadGlobal error:', e); globalState = {users:[],payments:[]}; saveGlobal(); }
-}
-function saveGlobal(){
-  localStorage.setItem('sms_bot_global', JSON.stringify(globalState));
-}
-
-function loadCurrentUser(){
-  let id = localStorage.getItem('sms_bot_user_id');
-  if(!id){
-    id = uidRandom();
-    localStorage.setItem('sms_bot_user_id', id);
-  }
-
-  let gu = globalState.users.find(u => u.id === id);
-  if(!gu){
-    // Create new user with initial balance and determine admin status from CONFIG
-    gu = {
-      id: id,
-      balance: 1, // Initial trial balance for new users
-      totalSent: 0,
-      created: nowStr(),
-      isAdmin: (id === CONFIG.ADMIN_ID), // Set isAdmin based on CONFIG
-      pinHash: null
-    };
-    globalState.users.push(gu);
-    saveGlobal();
-  }
-  currentUser = gu;
-  // Ensure isAdmin is always up-to-date based on CONFIG.ADMIN_ID
-  currentUser.isAdmin = (currentUser.id === CONFIG.ADMIN_ID);
-}
-
-/* ---------------------------------------------------------------------- */
-/* 4.2. PIN AUTHENTICATION & ADMIN OVERLAY */
-/* ---------------------------------------------------------------------- */
-
-function initPinFlow(){
-  const pinScreen = document.getElementById('pin-screen');
-  const adminAuthOverlay = document.getElementById('admin-auth-overlay');
-  const pinTitle = document.getElementById('pin-title');
-
-  currentPinEntry = ''; // Reset current entry
-  tempPin = '';         // Reset temp PIN for setup
-  updatePinInputs();    // Clear visual PIN dots
-  document.getElementById('pin-error').textContent = ''; // Clear error message
-
-  // Reset admin authentication state
-  isAdminAuthenticated = false;
-  document.getElementById('admin-key-input').value = '';
-  adminAuthOverlay.classList.remove('active');
-  document.getElementById('admin-tab-btn').style.display = 'none'; // Hide admin tab initially
-
-  // Dete
-
-венри | монарх, [18.01.2026 13:50]
-rmine PIN flow state
-  if (!currentUser.pinHash) {
-    pinTitle.textContent = 'Установите PIN-код';
-    pinInputStage = 'setup_start'; // Start PIN setup
-  } else {
-    pinTitle.textContent = 'Введите PIN-код';
-    pinInputStage = 'verify'; // Start PIN verification
-  }
-
-  // Show PIN screen
-  pinScreen.style.transform = 'translateY(0)';
-  renderKeypad();
-}
-
-function renderKeypad(){
-  const keypad = document.getElementById('keypad');
-  keypad.innerHTML = ''; // Clear previous keypad
-  const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
-  numbers.forEach(num => {
-    const btn = document.createElement('div');
-    btn.className = 'keypad-btn';
-    btn.textContent = num;
-    btn.onclick = () => handlePinInput(num.toString());
-    keypad.appendChild(btn);
-  });
-
-  // Backspace button
-  const backspace = document.createElement('div');
-  backspace.className = 'keypad-btn';
-  backspace.innerHTML = '<i class="fa fa-backspace"></i>';
-  backspace.onclick = () => handlePinInput('backspace');
-  keypad.appendChild(backspace);
-}
-
-function updatePinInputs(){
-  const inputs = document.querySelectorAll('.pin-input');
-  inputs.forEach((input, index) => {
-    input.classList.toggle('filled', index < currentPinEntry.length);
-    input.textContent = index < currentPinEntry.length ? '•' : ''; // Simple dot for input
-  });
-  document.getElementById('pin-error').textContent = ''; // Clear error on each update
-}
-
-function handlePinInput(key){
-  if (key === 'backspace') {
-    currentPinEntry = currentPinEntry.slice(0, -1);
-  } else if (currentPinEntry.length < 4) {
-    currentPinEntry += key;
-  }
-  updatePinInputs();
-
-  // Process PIN when 4 digits are entered
-  if (currentPinEntry.length === 4) {
-    setTimeout(processPin, 300);
-  }
-}
-
-function processPin(){
-  const pinError = document.getElementById('pin-error');
-  const pinScreen = document.getElementById('pin-screen');
-  const adminAuthOverlay = document.getElementById('admin-auth-overlay');
-  const mainAppContent = document.getElementById('main-app-content');
-
-  if (pinInputStage === 'setup_start') {
-    tempPin = currentPinEntry; // Store first entry
-    pinInputStage = 'setup_confirm';
-    currentPinEntry = '';      // Clear for next entry
-    updatePinInputs();
-    pinError.textContent = 'Повторите PIN-код'; // Prompt for confirmation
-  } else if (pinInputStage === 'setup_confirm') {
-    if (currentPinEntry === tempPin) { // PINs match
-      currentUser.pinHash = simpleHash(currentPinEntry); // Hash and save
-      saveGlobal();
-      pinError.textContent = 'PIN установлен!';
-      setTimeout(() => { // Hide PIN screen and show main app
-        pinScreen.style.transform = 'translateY(-100%)';
-        mainAppContent.style.display = 'flex';
-        renderInitialUI(); // Render the main app content
-      }, 500);
-    } else { // PINs do not match
-      pinInputStage = 'setup_start'; // Reset to start setup again
-      currentPinEntry = '';
-      tempPin = '';
-      updatePinInputs();
-      pinError.textContent = 'PIN-коды не совпадают';
-    }
-  } else if (pinInputStage === 'verify') {
-    if (simpleHash(currentPinEntry) === currentUser.pinHash) { // Correct PIN
-      pinError.textContent = 'Успешный вход!';
-      setTimeout(() => {
-        pinScreen.style.transform = 'translateY(-100%)'; // Hide PIN screen
-        // If user is an admin, show admin auth overlay for master key
-        if (currentUser.isAdmin) {
-          adminAuthOverlay.classList.add('active');
-          document.getElementById('admin-auth-title').textContent = `Доступ к Админ-Меню (ID: ${currentUser.id})`;
-        } else {
-          // If not admin, show main app directly
-          mainAppContent.style.display = 'flex';
-          renderInitialUI();
+        // Инициализация
+        function init() {
+            if (tg) {
+                tg.expand();
+                userData = tg.initDataUnsafe?.user;
+                if (userData) {
+                    showMainSection();
+                    loadUserData();
+                }
+            }
         }
-      }, 500);
-    } else { // Incorrect PIN
 
-венри | монарх, [18.01.2026 13:50]
-pinInputStage = 'incorrect'; // Indicate incorrect entry
-      pinError.textContent = 'Неверный PIN-код';
-      currentPinEntry = '';
-      updatePinInputs();
-      // After incorrect entry, prompt to re-enter or setup if it was never set
-      setTimeout(() => {
-        pinInputStage = currentUser.pinHash ? 'verify' : 'setup_start'; // Revert state
-        if (pinInputStage === 'verify') pinError.textContent = 'Введите PIN-код снова';
-        else pinError.textContent = 'Установите PIN-код';
-      }, 1200);
-    }
-  }
-}
-
-function adminAuthenticate(){
-  const key = document.getElementById('admin-key-input').value.trim();
-  const adminAuthError = document.getElementById('admin-auth-error');
-  if (key === CONFIG.ADMIN_MASTER_KEY) {
-    isAdminAuthenticated = true; // Set flag that master key is entered
-    document.getElementById('admin-auth-overlay').classList.remove('active'); // Hide auth overlay
-    document.getElementById('main-app-content').style.display = 'flex';      // Show main app
-    document.getElementById('admin-tab-btn').style.display = '';             // Show admin tab button
-    renderInitialUI(); // Render main UI which now includes admin tab
-    showToast('Вход в админку успешен', 'success');
-  } else {
-    adminAuthError.textContent = 'Неверный мастер-ключ';
-    document.getElementById('admin-key-input').value = ''; // Clear input
-  }
-}
-
-function skipAdminAuth(){
-  isAdminAuthenticated = false; // Ensure flag is false
-  document.getElementById('admin-auth-overlay').classList.remove('active'); // Hide overlay
-  document.getElementById('main-app-content').style.display = 'flex';      // Show main app
-  renderInitialUI(); // Render main UI without admin tab access
-  showToast('Вы вошли как обычный пользователь', 'info');
-}
-
-/* ---------------------------------------------------------------------- */
-/* 4.3. INITIALIZATION & UI RENDERING */
-/* ---------------------------------------------------------------------- */
-
-document.addEventListener('DOMContentLoaded', () => {
-  loadGlobal();         // Load data from localStorage
-  loadCurrentUser();    // Identify current user
-  initPinFlow();        // Start PIN entry/setup flow
-  bindSendEditor();     // Bind event listeners for SMS sending form
-  renderShop();         // Display SMS packages
-  renderHistory();      // Display user's transaction history
-  updateStats();        // Update admin stats if already logged in as admin (though initPinFlow handles hiding/showing)
-});
-
-function renderInitialUI(){
-  document.getElementById('user-id').textContent = currentUser.id;
-  document.getElementById('profile-id').textContent = 'ID: ' + currentUser.id;
-  document.getElementById('profile-created').textContent = 'Создан: ' + currentUser.created.split(',')[0];
-  document.getElementById('profile-role').textContent = currentUser.isAdmin ? 'Администратор' : 'Пользователь';
-
-  // Toggle admin tab visibility
-  const adminTab = document.getElementById('admin-tab-btn');
-  if (currentUser.isAdmin && isAdminAuthenticated) { // Only show if user is admin AND has entered master key
-    adminTab.style.display = '';
-  } else {
-    adminTab.style.display = 'none';
-  }
-
-  updateBalanceUI(); // Update balance display
-  switchTab('shop', document.querySelector('.tab.active')); // Set default active tab to 'shop'
-}
-
-function updateBalanceUI(){
-  document.getElementById('balance-value').textContent = currentUser.balance + ' SMS';
-  const usdtValue = ((currentUser.balance * (CONFIG.USDT_RATE || 1)) / 100).toFixed(2);
-  document.getElementById('balance-usdt').textContent = `~ ${usdtValue} USDT`;
-}
-
-function switchTab(tab, el){
-  document.querySelectorAll('.tab').forEach(t =
-
-венри | монарх, [18.01.2026 13:50]
-> t.classList.remove('active'));
-  if(el) el.classList.add('active'); // Highlight the clicked tab
-
-  // Hide all tab contents, then show the selected one
-  ['shop','send','profile','history','admin'].forEach(t => {
-    const id = 'tab-' + t;
-    const elTab = document.getElementById(id);
-    if(elTab) elTab.style.display = (t === tab) ? '' : 'none';
-  });
-
-  // If switching to admin tab, render the overview
-  if(tab === 'admin') {
-    if (isAdminAuthenticated) { // Check if admin has been authenticated
-      renderAdminOverview();
-    } else {
-      // If admin tab is clicked but not authenticated, maybe prompt for master key again?
-      // For now, it's hidden if !isAdminAuthenticated
-      showToast('Сначала войдите как администратор', 'warning');
-      switchTab('shop', document.querySelector('.tab[data-tab="shop"]')); // Revert to shop tab
-    }
-  }
-}
-
-/* ---------------------------------------------------------------------- */
-/* 4.4. SHOP & PAYMENT LOGIC */
-/* ---------------------------------------------------------------------- */
-
-function renderShop(){
-  const container = document.getElementById('shop-grid');
-  container.innerHTML = ''; // Clear previous packages
-  CONFIG.SMS_PACKAGES.forEach(pkg => {
-    const usdt = (pkg.rub / CONFIG.USDT_RATE).toFixed(2);
-    const card = document.createElement('div');
-    card.className = 'pack';
-    card.innerHTML = `
-      <div class="left">
-        <div class="sms">${pkg.sms} SMS</div>
-        <div class="desc">${pkg.rub} RUB • Мгновенно</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
-        <div class="price">${usdt} USDT</div>
-        <button class="btn btn-secondary" onclick="openTopUpModal(${pkg.id})">Купить</button>
-      </div>
-    `;
-    container.appendChild(card);
-  });
-}
-
-let pendingPayment = null; // Stores info about the last opened top-up modal
-
-function openTopUpModal(packageId){
-  const modal = document.getElementById('modal-payment');
-  const body = document.getElementById('modal-payment-body');
-  document.getElementById('modal-payment-title').textContent = 'Пополнение USDT';
-
-  if(packageId === undefined){ // User clicked 'Пополнить' in profile, show package selection
-    body.innerHTML = `
-      <div class="section-card" style="box-shadow:none; margin-bottom:0; background:var(--bg); padding:12px">
-        <div class="small">Выберите пакет или введите сумму USDT</div>
-        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-          ${CONFIG.SMS_PACKAGES.map(p => `<button class="btn btn-secondary" onclick="openTopUpModal(${p.id})">${p.sms} SMS — ${(p.rub/CONFIG.USDT_RATE).toFixed(2)} USDT</button>`).join('')}
-        </div>
-      </div>
-    `;
-    modal.classList.add('active');
-    return;
-  }
-
-  // Specific package selected, generate payment details
-  const pkg = CONFIG.SMS_PACKAGES.find(p => p.id == packageId);
-  if(!pkg) return showToast('Пакет не найден', 'error');
-
-  const usdt = (pkg.rub / CONFIG.USDT_RATE).toFixed(2);
-  const memo = 'PAY-' + uidRandom(); // Generate a unique memo for this payment
-
-  pendingPayment = {
-    id: memo, // This is the payment memo/ID
-    payerId: currentUser.id,
-    sms: pkg.sms,
-    rub: pkg.rub,
-    usdt: usdt,
-    status: 'pending', // Initial status for user payment
-    createdAt: nowStr(),
-    type: 'payment',
-    txHash: null, // Will be filled by admin
-    adminNote: null // Admin notes
-  };
-
-  globalState.payments.unshift(pendingPayment); // Add to global payment history
-  saveGlobal();
-
-  const qrText = `tron:${CONFIG.TRC20_ADDRESS}?amount=${usdt}&memo=${memo}`;
-
-  body.innerH
-
-венри | монарх, [18.01.2026 13:50]
-TML = `
-    <div style="text-align:center">
-      <div class="small">Сумма к оплате</div>
-      <div style="font-weight:800;font-size:24px;margin-top:4px;color:var(--success)">${usdt} USDT</div>
-      <div class="small" style="margin-top:4px">${pkg.sms} SMS • ${pkg.rub} RUB</div>
-      <div class="qr" id="qr-canvas"><canvas id="qr-canvas-elm"></canvas></div>
-
-      <div class="section-card" style="box-shadow:none; margin-bottom:0; text-align:left; background:var(--bg); padding:12px">
-        <div class="small">Адрес TRC20</div>
-        <div style="font-family:monospace;margin-top:4px;font-weight:500">${CONFIG.TRC20_ADDRESS}</div>
-
-        <div class="small" style="margin-top:10px">MEMO / ID платежа (обязательно!)</div>
-        <div style="font-family:monospace;margin-top:4px;font-weight:700;color:var(--primary);font-size:16px">${memo}</div>
-      </div>
-
-      <div style="margin-top:15px;display:flex;gap:8px;justify-content:center">
-        <button class="btn btn-primary" onclick="copyPaymentInfo()">Скопировать реквизиты</button>
-        <button class="btn btn-success" id="i-paid" onclick="markPaid('${memo}')">Я оплатил</button>
-      </div>
-
-      <div class="small" style="margin-top:15px">
-        Инструкция: используйте кошелёк TRON (TRC20), токен USDT. Укажите точную сумму и MEMO. Ожидайте подтверждения администратора.
-      </div>
-    </div>
-  `;
-
-  // Generate QR code after the modal content is rendered
-  setTimeout(()=> {
-    try{
-      QRCode.toCanvas(document.getElementById('qr-canvas-elm'), qrText, { width:200, margin:2 });
-    }catch(e){ console.error('QR Error:', e) }
-  },50);
-
-  modal.classList.add('active'); // Show the modal
-}
-
-function copyPaymentInfo(){
-  if(!pendingPayment) return;
-  const txt = `Оплата SMS\nАдрес: ${CONFIG.TRC20_ADDRESS}\nMEMO: ${pendingPayment.id}\nСумма: ${pendingPayment.usdt} USDT\nСеть: TRON (TRC20)`;
-  copyToClipboard(txt);
-  showToast('Реквизиты скопированы', 'success');
-}
-
-function markPaid(memo){
-  const p = globalState.payments.find(x => x.id === memo);
-  if(!p) { showToast('Платеж не найден', 'error'); return; }
-  p.markedByPayerAt = nowStr(); // Mark that the user clicked "I paid"
-  // Status remains 'pending' until admin confirms
-  saveGlobal();
-  showToast('Платеж отмечен как оплаченный. Ожидайте подтверждения администратора.', 'info');
-  setTimeout(()=> closeModal('payment'), 1200); // Close modal after confirmation message
-  renderHistory(); // Refresh history to show the updated status
-}
-
-function closeModal(which){
-  if(which === 'payment') document.getElementById('modal-payment').classList.remove('active');
-  if(which === 'admin') document.getElementById('modal-admin').classList.remove('active');
-}
-
-/* ---------------------------------------------------------------------- */
-/* 4.5. SEND SMS LOGIC */
-/* ---------------------------------------------------------------------- */
-
-function bindSendEditor(){
-  const textarea = document.getElementById('message');
-  const smsRange = document.getElementById('sms-count');
-  const priority = document.getElementById('priority');
-  const sendBtn = document.getElementById('send-btn');
-
-  textarea.addEventListener('input', updateSendCost);
-  smsRange.addEventListener('input', updateSendCost);
-  priority.addEventListener('change', updateSendCost);
-  sendBtn.addEventListener('click', sendSMS);
-}
-
-function updateSendCost(){
-  const len = document.getElementById('message').value.length;
-  const charCount = document.getElementById('char-count');
-  const smsRange = document.getElementById('sms-count');
-  const smsDisplay = document.getElementById('sms-cou
-
-венри | монарх, [18.01.2026 13:50]
-nt-display');
-  const sendCostEl = document.getElementById('send-cost');
-  const priority = parseInt(document.getElementById('priority').value) || 1;
-
-  charCount.textContent = len; // Update character count display
-
-  // Calculate base SMS required based on message length (160 chars per SMS)
-  const baseSmsByLength = Math.max(1, Math.ceil(len / 160));
-
-  // If user manually adjusted range slider, ensure it's at least enough for the message
-  if (smsRange.value < baseSmsByLength) {
-    smsRange.value = baseSmsByLength;
-  }
-  // Update displayed SMS count based on slider value
-  smsDisplay.textContent = smsRange.value;
-
-  const finalSmsCount = parseInt(smsRange.value);
-  const totalSmsRequired = finalSmsCount * priority; // Total SMS to be deducted (includes priority multiplier)
-
-  sendCostEl.textContent = `${totalSmsRequired} SMS`; // Display total SMS to be deducted
-
-  // Check if user has enough balance
-  if (currentUser.balance < totalSmsRequired) {
-    sendCostEl.style.backgroundColor = 'var(--danger)';
-    sendCostEl.style.color = 'white';
-    document.getElementById('send-btn').disabled = true; // Disable send button
-  } else {
-    sendCostEl.style.backgroundColor = '#e0e0e0'; // Reset color
-    sendCostEl.style.color = '#333';
-    document.getElementById('send-btn').disabled = false; // Enable send button
-  }
-}
-
-function resetSendForm(){
-  document.getElementById('phone').value = '';
-  document.getElementById('message').value = '';
-  document.getElementById('sms-count').value = 1; // Reset slider to 1
-  document.getElementById('priority').value = 1;  // Reset priority to normal
-  updateSendCost(); // Recalculate cost and status
-  document.getElementById('send-status').innerHTML = ''; // Clear any previous status message
-}
-
-function sendSMS(){
-  const phone = document.getElementById('phone').value.trim();
-  const message = document.getElementById('message').value.trim();
-  const smsCostText = document.getElementById('send-cost').textContent;
-  const totalSmsRequired = parseInt(smsCostText.split(' ')[0]) || 1; // Extract the number from "XXX SMS"
-
-  if(!phone || !message){ showToast('Введите номер и текст сообщения', 'error'); return; }
-  if(currentUser.balance < totalSmsRequired){ showToast('Недостаточно SMS на балансе', 'error'); return; }
-
-  // Create a record for the pending dispatch queue
-  const smsRecord = {
-    id: 'SMS-' + uidRandom(), // Unique ID for this SMS operation
-    payerId: currentUser.id,   // User who initiated the send
-    phone, message,
-    smsCount: totalSmsRequired, // The total number of SMS to be deducted (includes priority multiplier)
-    priority: parseInt(document.getElementById('priority').value),
-    type: 'sms_outbound',     // Type of transaction
-    status: 'pending_dispatch', // New status: waiting for admin/bot processing
-    createdAt: nowStr(),       // Timestamp of creation
-    sentAt: null,              // Will be set when confirmed by admin
-    failedAt: null,            // Will be set if admin declines
-    adminNote: null            // Admin notes
-  };
-
-  // Deduct SMS from user balance immediately
-  currentUser.balance -= totalSmsRequired;
-  currentUser.totalSent = (currentUser.totalSent || 0) + totalSmsRequired; // Update total sent
-
-  // Update user's record in globalState
-  const userIndex = globalState.users.findIndex(u=>u.id===currentUser.id);
-  if(userIndex >= 0){
-    globalState.users[userIndex].balance = currentUser.balance;
-    globalState.users[userIndex].totalSent = currentUser.totalSent;
-  }
-
-  globalState.payments.unshift(smsRecord); // Add to the global list of payments/transactions
-  saveGlobal(); // Save updated state
-
-  updateBalanceUI(); // Refresh the balance display
-  renderHistory();   // Update user's history to show the new pending status
-  showToast(`SMS запрос на ${phone} добавлен в очередь. Списан
-
-венри | монарх, [18.01.2026 13:50]
-о ${totalSmsRequired} SMS.`, 'info');
-  resetSendForm(); // Clear the form
-}
-
-/* ---------------------------------------------------------------------- */
-/* 4.6. HISTORY RENDERING */
-/* ---------------------------------------------------------------------- */
-
-function renderHistory(){
-  const list = document.getElementById('history-list');
-  // Filter history for the current user and sort by date (newest first)
-  const items = globalState.payments.filter(it => it.payerId === currentUser.id)
-    .sort((a,b) => new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt));
-
-  if(items.length === 0){ // If no history for the user
-    list.innerHTML = `<div style="text-align:center;padding:40px;color:var(--muted)"><i class="fa fa-history" style="font-size:36px;opacity:0.3"></i><div>История пуста</div></div>`;
-    return;
-  }
-
-  list.innerHTML = ''; // Clear current history list
-  items.forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'history-item';
-    let title, cost, statusHtml, borderLeftColor = 'var(--primary)'; // Default border color
-
-    switch(item.type){
-      case 'sms_outbound': // SMS sending transaction
-        title = `Отправка SMS на ${item.phone}`;
-        cost = `Списано: ${item.smsCount} SMS (x${item.priority || 1})`;
-        switch(item.status){
-          case 'pending_dispatch':
-            statusHtml = `<span class="badge pending">Ожидает отправки</span>`;
-            borderLeftColor = 'var(--primary)'; // Orange for pending
-            break;
-          case 'dispatching': // This status might not be used if going straight to sent/failed
-            statusHtml = `<span class="badge dispatching">В процессе</span>`;
-            borderLeftColor = 'var(--primary)'; // Blue for dispatching
-            break;
-          case 'sent':
-            statusHtml = `<span class="badge success">Отправлено</span>`;
-            borderLeftColor = 'var(--success)'; // Green for sent
-            break;
-          case 'failed':
-            statusHtml = `<span class="badge danger">Ошибка</span>`;
-            borderLeftColor = 'var(--danger)'; // Red for failed
-            break;
-          default:
-            statusHtml = `<span class="badge pending">Неизвестно</span>`;
+        // Функция входа через Telegram
+        function loginWithTelegram() {
+            // В реальном приложении здесь должна быть интеграция с Telegram Login Widget
+            // или использование Telegram Web App
+            alert("В реальном приложении будет реализован вход через Telegram");
+            // Для демо просто показываем основную секцию
+            showMainSection();
+            loadUserData();
         }
-        break;
-      case 'admin_add': // SMS credited by admin
-        title = `Начисление SMS (Админ)`;
-        cost = `Начислено: +${item.sms} SMS`;
-        statusHtml = `<span class="badge success">Завершено</span>`;
-        borderLeftColor = 'var(--success)'; // Green for admin add
-        break;
-      case 'payment': // USDT payment made by user
-        title = `Пополнение баланса`;
-        cost = `Сумма: ${item.usdt} USDT (${item.sms} SMS)`;
-        switch(item.status){
-          case 'confirmed':
-            statusHtml = `<span class="badge success">Подтвержден</span>`;
-            borderLeftColor = 'var(--success)'; // Green for confirmed
-            break;
-          case 'pending':
-            statusHtml = `<span class="badge pending">Ожидание</span>`;
-            borderLeftColor = 'var(--primary)'; // Orange for pending
-            break;
-          case 'declined':
-            statusHtml = `<span class="badge danger">Отклонён</span>`;
-            borderLeftColor = 'var(--danger)'; // Red for declined
-            break;
-          default:
-            statusHtml = `<span class="badge pending">Неизвестно</span>`;
+
+        function showMainSection() {
+            document.getElementById('authSection').style.display = 'none';
+            document.getElementById('mainSection').style.display = 'block';
         }
-        break;
-      case 'admin_confirm': // Admin confirmed a payment (internal record)
-        title = `Подтверждение пополнения`;
-        cost = `+${item.sms} SMS`;
-        statusHtml = `<span class="badge success">Завершено</span>
 
-венри | монарх, [18.01.2026 13:50]
-`;
-        borderLeftColor = 'var(--success)';
-        break;
-      default: // Unknown transaction type
-        title = `Неизвестная операция`;
-        cost = '';
-        statusHtml = `<span class="badge pending">Неизвестно</span>`;
-    }
-
-    // Set the border color dynamically
-    div.style.borderLeft = `4px solid ${borderLeftColor}`;
-
-    // Construct the HTML for the history item
-    div.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <strong>${title}</strong>
-          <div class="meta">${item.createdAt || item.date || ''}</div>
-        </div>
-        <div style="text-align:right">
-          ${statusHtml}
-        </div>
-      </div>
-      <div class="small" style="margin-top:8px">${cost}</div>
-      ${item.id.startsWith('PAY-') ? `<div class="small">ID платежа: ${item.id}</div>` : ''}
-    `;
-    list.appendChild(div);
-  });
-}
-
-/* ---------------------------------------------------------------------- */
-/* 4.7. ADMIN DASHBOARD */
-/* ---------------------------------------------------------------------- */
-
-function renderAdminOverview(){
-  if (!isAdminAuthenticated) return; // Only render if admin is authenticated
-  const ac = document.getElementById('admin-content');
-  // Initial overview dashboard
-  ac.innerHTML = `
-    <div class="admin-grid">
-      <div class="admin-card">
-        <div class="small">Всего пользователей</div>
-        <div style="font-weight:800;font-size:20px" id="admin-total-users">0</div>
-      </div>
-      <div class="admin-card">
-        <div class="small">Подтверждённых платежей</div>
-        <div style="font-weight:800;font-size:20px" id="admin-confirmed-payments">0</div>
-      </div>
-      <div class="admin-card">
-        <div class="small">SMS в очереди</div>
-        <div style="font-weight:800;font-size:20px" id="admin-pending-sms">0</div>
-      </div>
-       <div class="admin-card">
-        <div class="small">Общий баланс SMS</div>
-        <div style="font-weight:800;font-size:20px" id="admin-total-sms-balance">0</div>
-      </div>
-    </div>
-  `;
-  updateStats(); // Update the displayed stats on the overview
-}
-
-function updateStats(){
-  if (!isAdminAuthenticated) return; // Only update if admin is authenticated
-  const totalUsers = globalState.users.length;
-  const confirmedPayments = globalState.payments.filter(p => p.status === 'confirmed' && p.type === 'payment').length;
-  const pendingDispatchCount = globalState.payments.filter(p => p.status === 'pending_dispatch' && p.type === 'sms_outbound').length;
-  const totalSMSBalance = globalState.users.reduce((sum, u) => sum + (u.balance || 0), 0); // Sum of all user balances
-
-  // Update DOM elements
-  document.getElementById('admin-total-users').textContent = totalUsers;
-  document.getElementById('admin-confirmed-payments').textContent = confirmedPayments;
-  document.getElementById('admin-pending-sms').textContent = pendingDispatchCount;
-  document.getElementById('admin-total-sms-balance').textContent = totalSMSBalance;
-}
-
-function renderAdminUsers(){
-  if (!isAdminAuthenticated) return;
-  const ac = document.getElementById('admin-content');
-  ac.innerHTML = `
-    <h4>Список пользователей (${globalState.users.length})</h4>
-    <div id="admin-users-list"></div>
-  `;
-  const list = document.getElementById('admin-users-list');
-  list.innerHTML = ''; // Clear previous list
-  globalState.users.forEach(u => {
-    const node = document.createElement('div');
-    node.className = 'admin-item';
-    node.innerHTML = `
-      <div>
-        <strong>${u.id}</strong><br>
-
-венри | монарх, [18.01.2026 13:51]
-<span class="small">Баланс: ${u.balance} SMS | Отправлено: ${u.totalSent || 0} | Админ: ${u.isAdmin ? 'Да' : 'Нет'}</span>
-      </div>
-      <div class="actions">
-        <button class="btn btn-secondary btn-sm" onclick="adminEditUser('${u.id}')"><i class="fa fa-edit"></i></button>
-        <button class="btn btn-secondary btn-sm" onclick="adminAddSMSModal('${u.id}')"><i class="fa fa-plus"></i></button>
-      </div>`;
-    list.appendChild(node);
-  });
-}
-
-function adminEditUser(userId){
-  if (!isAdminAuthenticated) return;
-  const user = globalState.users.find(u=>u.id===userId);
-  if(!user) return;
-  const body = document.getElementById('modal-admin-body');
-  document.getElementById('modal-admin-title').textContent = 'Редактировать пользователя';
-  body.innerHTML = `
-    <div class="section-card" style="box-shadow:none; margin-bottom:0">
-      <div class="form-row"><label class="form-label">ID</label><input class="input" value="${user.id}" disabled /></div>
-      <div class="form-row"><label class="form-label">Баланс SMS</label><input class="input" id="adm-edit-balance" type="number" value="${user.balance}" /></div>
-      <div class="form-row"><label class="form-label">Админ</label>
-        <select class="input" id="adm-edit-isadmin"><option value="false">Нет</option><option value="true">Да</option></select>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-primary" onclick="adminSaveEdit('${user.id}')">Сохранить</button>
-        <button class="btn btn-secondary" onclick="closeModal('admin')">Отмена</button>
-      </div>
-    </div>
-  `;
-  // Set the select element's value based on user's current admin status
-  document.getElementById('adm-edit-isadmin').value = user.isAdmin ? 'true' : 'false';
-  document.getElementById('modal-admin').classList.add('active'); // Show the modal
-}
-
-function adminSaveEdit(userId){
-  if (!isAdminAuthenticated) return;
-  const bal = parseInt(document.getElementById('adm-edit-balance').value) || 0;
-  const isAdmin = document.getElementById('adm-edit-isadmin').value === 'true';
-  const idx = globalState.users.findIndex(u=>u.id===userId);
-  if(idx === -1) return;
-
-  const oldIsAdmin = globalState.users[idx].isAdmin; // Store old status for comparison
-  globalState.users[idx].balance = bal;
-  globalState.users[idx].isAdmin = isAdmin;
-  saveGlobal();
-
-  // If the currently logged-in user is being edited:
-  if(currentUser.id === userId) {
-    currentUser.balance = bal;
-    currentUser.isAdmin = isAdmin;
-    if (currentUser.isAdmin) { // User became admin
-      if (!isAdminAuthenticated) { // And they were not previously authenticated as admin
-        // Inform them and potentially re-prompt for master key
-        showToast('Ваш статус изменен на Админ. Для доступа к админ-меню, пожалуйста, войдите снова.', 'warning');
-        document.getElementById('admin-tab-btn').style.display = 'none'; // Hide tab until re-auth
-      }
-    } else { // User lost admin status
-       isAdminAuthenticated = false; // Force logout from admin section
-       document.getElementById('admin-tab-btn').style.display = 'none'; // Hide admin tab
-       showToast('Ваш статус Админа удален. Админ-меню недоступно.', 'error');
-    }
-    updateBalanceUI(); // Update balance display for current user
-  }
-
-  renderAdminUsers(); // Refresh user list
-  updateStats();      // Refresh stats
-  closeModal('admin'); // Close modal
-  showToast('Пользователь обновлён', 'success');
-}
-
-function adminAddSMSModal(targetId){
-  if (!isAdminAuthenticated) return;
-  const body = document.getElementById('modal-admin-body');
-  document.getElementById('modal-admin-title').textContent = 'Начислить SMS';
-  body.innerHTML = `
-    <div class="
-
-венри | монарх, [18.01.2026 13:51]
-section-card" style="box-shadow:none; margin-bottom:0">
-      <div class="form-row"><label class="form-label">ID пользователя</label><input class="input" id="adm-add-id" value="${targetId || ''}" /></div>
-      <div class="form-row"><label class="form-label">Кол-во SMS</label><input class="input" id="adm-add-amount" type="number" value="100" /></div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-primary" onclick="adminAddSMSConfirm()">Начислить</button>
-        <button class="btn btn-secondary" onclick="closeModal('admin')">Отмена</button>
-      </div>
-    </div>
-  `;
-  document.getElementById('modal-admin').classList.add('active'); // Show modal
-}
-
-function adminAddSMSConfirm(){
-  if (!isAdminAuthenticated) return;
-  const id = document.getElementById('adm-add-id').value.trim();
-  const amount = parseInt(document.getElementById('adm-add-amount').value) || 0;
-  if(!id || amount <= 0){ showToast('Некорректные данные', 'error'); return; }
-  const u = globalState.users.find(x=>x.id===id);
-  if(!u){ showToast('Пользователь не найден', 'error'); return; }
-
-  u.balance = (u.balance || 0) + amount;
-  u.totalSent = u.totalSent || 0; // Ensure totalSent exists
-
-  // Create a record for this admin action
-  const rec = { id: 'ADMIN-' + uidRandom(), payerId: id, sms: amount, type: 'admin_add', date: nowStr(), status: 'completed' };
-  globalState.payments.unshift(rec); // Add to history
-  saveGlobal();
-
-  if(currentUser.id === id) { // If the current user is the one receiving SMS
-    currentUser.balance = u.balance; // Update local currentUser balance
-    updateBalanceUI(); // Update UI
-  }
-
-  renderAdminUsers(); // Refresh user list in admin panel
-  updateStats();      // Refresh stats
-  closeModal('admin'); // Close modal
-  showToast(`+${amount} SMS начислено пользователю ${id}`, 'success');
-}
-
-function renderAdminPayments(){
-  if (!isAdminAuthenticated) return;
-  const ac = document.getElementById('admin-content');
-  // Filter for payment transactions and sort by date
-  const payments = globalState.payments.filter(p => p.type === 'payment').sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-  ac.innerHTML = `
-    <h4>Платежи клиентов (${payments.length})</h4>
-    <div id="admin-payments-list"></div>
-  `;
-  const list = document.getElementById('admin-payments-list');
-  if(payments.length === 0){
-    list.innerHTML = `<div class="small" style="text-align:center;padding:30px;color:var(--muted)">Платежей нет</div>`;
-    return;
-  }
-  payments.forEach(p => {
-    const status = p.status || 'pending';
-    // Determine badge class and color based on status
-    const statusClass = status === 'confirmed' ? 'success' : status === 'pending' ? 'pending' : 'danger';
-    const payerLabel = p.payerId || '—'; // Display payer ID or placeholder
-    const node = document.createElement('div');
-    node.className = 'admin-item';
-    node.innerHTML = `
-      <div>
-        <strong>${p.sms || '—'} SMS</strong><br>
-        <span class="small">${p.usdt ? p.usdt + ' USDT' : ''} • ID: ${p.id}</span><br>
-        <span class="small">Плательщик: ${payerLabel} • ${p.createdAt || p.date || ''}</span>
-      </div>
-      <div class="actions">
-        <span class="badge ${statusClass}">${status}</span>
-        <button class="btn btn-secondary btn-sm" onclick="adminInspectPayment('${p.id}')"><i class="fa fa-eye"></i></button>
-      </div>
-    `;
-    list.appendChild(node);
-  });
-}
-
-function renderPendingDispatch(){
-  if (!isAdminAuthenticated) return;
-  const ac = document.getElementById('admin-content');
-  // Filter for SMS outbound transactions with 'pending_dispatch' status
-  const pendingSMS = globalState.payments.filte
-
-венри | монарх, [18.01.2026 13:51]
-r(p => p.type === 'sms_outbound' && p.status === 'pending_dispatch').sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-  ac.innerHTML = `
-    <h4>SMS в очереди на отправку (${pendingSMS.length})</h4>
-    <div id="pending-sms-list"></div>
-  `;
-  const list = document.getElementById('pending-sms-list');
-  if(pendingSMS.length === 0){
-    list.innerHTML = `<div class="small" style="text-align:center;padding:30px;color:var(--muted)">Нет SMS в очереди</div>`;
-    return;
-  }
-  pendingSMS.forEach(p => {
-    const node = document.createElement('div');
-    node.className = 'admin-item';
-    node.innerHTML = `
-      <div>
-        <strong>${p.phone}</strong><br>
-        <span class="small">${p.message.substring(0, 30)}${p.message.length > 30 ? '...' : ''}</span><br>
-        <span class="small">ID: ${p.id} • ${p.createdAt}</span>
-      </div>
-      <div class="actions">
-        <button class="btn btn-success btn-sm" onclick="adminConfirmSMSDispatch('${p.id}')"><i class="fa fa-paper-plane"></i> Отправить</button>
-        <button class="btn btn-danger btn-sm" onclick="adminDeclineSMSDispatch('${p.id}')"><i class="fa fa-times"></i> Отклонить</button>
-      </div>
-    `;
-    list.appendChild(node);
-  });
-}
-
-function adminConfirmSMSDispatch(id){
-  if (!isAdminAuthenticated) return;
-  const p = globalState.payments.find(x=>x.id===id);
-  if(!p) return showToast('Запрос не найден', 'error');
-
-  p.status = 'sent'; // Mark as sent by admin
-  p.sentAt = nowStr(); // Record when admin confirmed it
-  saveGlobal();
-
-  renderPendingDispatch(); // Update the pending list
-  renderHistory();         // Update user's history
-  updateStats();           // Update admin stats
-  showToast('SMS успешно отправлено', 'success');
-}
-
-function adminDeclineSMSDispatch(id){
-  if (!isAdminAuthenticated) return;
-  const p = globalState.payments.find(x=>x.id===id);
-  if(!p) return showToast('Запрос не найден', 'error');
-
-  p.status = 'failed'; // Mark as failed/declined
-  p.failedAt = nowStr(); // Record when admin declined it
-  // Note: SMS are already deducted. If refund logic is needed, it would be implemented here.
-  saveGlobal();
-
-  renderPendingDispatch(); // Update the pending list
-  renderHistory();         // Update user's history
-  showToast('Запрос на отправку SMS отклонён', 'error');
-}
-
-
-function adminInspectPayment(id){
-  if (!isAdminAuthenticated) return;
-  const p = globalState.payments.find(x=>x.id===id);
-  if(!p) return showToast('Платёж не найден', 'error');
-  const body = document.getElementById('modal-admin-body');
-  document.getElementById('modal-admin-title').textContent = `Детали платежа ${id}`;
-  body.innerHTML = `
-    <div class="section-card" style="box-shadow:none; margin-bottom:0">
-      <div class="small">Плательщик: <strong>${p.payerId || '—'}</strong></div>
-      <div class="small">Сумма: <strong>${p.usdt} USDT</strong> (${p.sms} SMS)</div>
-      <div class="small">Статус: <strong class="badge ${p.status === 'confirmed' ? 'success' : p.status === 'pending' ? 'pending' : 'danger'}">${p.status}</strong></div>
-      <div class="small">Время создания: ${p.createdAt}</div>
-      ${p.confirmedAt ? `<div class="small">Время подтверждения: ${p.confirmedAt}</div>` : ''}
-      ${p.declinedAt ? `<div class="small">Время отклонения: ${p.declinedAt}</div>` : ''}
-
-      <div class="form-row" style="margin-top:15px"><label class="form-label">TX hash (опционально)</label><input class="input" id="adm-txhash" value="${p.txHash || ''}" /></div>
-      <div class="form-row"><label class="form-label">Заметка админа</label><input class="input" id="adm-note" value="${p.adminNote || ''}" /></div>
-
-венри | монарх, [18.01.2026 13:51]
-<div style="display:flex;gap:8px;margin-top:15px">
-        <button class="btn btn-success" onclick="adminConfirmPayment('${p.id}', true)">Подтвердить</button>
-        <button class="btn btn-danger" onclick="adminDeclinePayment('${p.id}', true)">Отклонить</button>
-        <button class="btn btn-secondary" onclick="closeModal('admin')">Закрыть</button>
-      </div>
-    </div>
-  `;
-  document.getElementById('modal-admin').classList.add('active'); // Show modal
-}
-
-function adminConfirmPayment(id, fromInspect = false){
-  if (!isAdminAuthenticated) return;
-  const p = globalState.payments.find(x=>x.id===id);
-  if(!p) return showToast('Платёж не найден', 'error');
-
-  // Update transaction details if coming from inspect modal
-  if(fromInspect){
-    p.txHash = document.getElementById('adm-txhash').value.trim();
-    p.adminNote = document.getElementById('adm-note').value.trim();
-  }
-
-  p.status = 'confirmed';
-  p.confirmedAt = nowStr();
-
-  // Find the user who made the payment and credit their balance
-  const user = globalState.users.find(u=>u.id === p.payerId);
-  if(user){
-    user.balance = (user.balance || 0) + (p.sms || 0);
-    // Add an internal record to show this credit in the global history
-    globalState.payments.unshift({
-        id: 'ACCEPT-' + uidRandom(),
-        payerId: p.payerId, // Link to user who received the credit
-        sms: p.sms,
-        type: 'admin_confirm',
-        date: nowStr(),
-        status: 'completed'
-    });
-    // If the current user is the one who paid, update their balance and UI
-    if(currentUser.id === user.id){
-      currentUser.balance = user.balance;
-      updateBalanceUI();
-    }
-  }
-  saveGlobal();
-  renderAdminPayments(); // Refresh admin payment list
-  renderHistory();       // Refresh user's history
-  updateStats();         // Update stats
-  showToast('Платёж подтверждён', 'success');
-  if(fromInspect) closeModal('admin'); // Close modal if opened from inspect view
-}
-
-function adminDeclinePayment(id, fromInspect = false){
-  if (!isAdminAuthenticated) return;
-  const p = globalState.payments.find(x=>x.id===id);
-  if(!p) return showToast('Платёж не найден', 'error');
-  p.status = 'declined';
-  p.declinedAt = nowStr();
-  saveGlobal();
-  renderAdminPayments(); // Refresh admin payment list
-  if(fromInspect) closeModal('admin'); // Close modal if opened from inspect view
-  showToast('Платёж отклонён', 'error');
-}
-
-/* ---------------------------------------------------------------------- */
-/* 4.8. GLOBAL HELPERS */
-/* ---------------------------------------------------------------------- */
-
-function showToast(text, type = 'info'){
-  const el = document.createElement('div');
-  el.className = 'toast ' + type; // Add type class for styling (info, success, error)
-  el.textContent = text;
-  document.body.appendChild(el); // Add to DOM
-  setTimeout(()=> el.classList.add('active'), 10); // Fade in
-  setTimeout(()=> { // Fade out and remove
-    el.classList.remove('active');
-    setTimeout(()=> el.remove(), 300); // Remove from DOM after fade out
-  }, 4200); // Toast visible for 4 seconds
-}
-
-function copyToClipboard(text){
-  navigator.clipboard.writeText(text).then(()=> showToast('Скопировано', 'success')).catch(()=> showToast('Ошибка копирования', 'error'));
-}
-
-function resetApp(){
-  if(confirm('Внимание! Все локальные данные будут удалены без возможности восстановления. Вы уверены?')){
-    localStorage.clear(); // Clear all data from localStorage
-    window.location.reload(); // Reload the page
-  }
-}
-
-function adminExportData(){
-  if (!isAdminAuthenticated) return;
-  const data = JSON.stringify(globalState, null, 2); // Pr
-
-венри | монарх, [18.01.2026 13:51]
-etty print JSON
-  const blob = new Blob([data], { type: 'application/json' }); // Create a Blob object
-  const url = URL.createObjectURL(blob); // Create a temporary URL for the Blob
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `sms-bot-data-export-${(new Date()).toISOString().slice(0,10)}.json`; // Set download filename
-  a.click(); // Simulate a click to trigger download
-  URL.revokeObjectURL(url); // Release the temporary URL
-  showToast('Данные экспортированы', 'success');
-}
-
-function adminImportData(){
-  if (!isAdminAuthenticated) return;
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'application/json'; // Accept only JSON files
-  input.onchange = e => {
-    const file = e.target.files[0];
-    if(!file) return;
-    const reader = new FileReader();
-    reader.onload = evt => {
-      try{
-        const obj = JSON.parse(evt.target.result); // Parse JSON from file
-        if(confirm('Импорт перезапишет текущие данные. Продолжить?')){
-          globalState = obj; // Replace current globalState with imported data
-          saveGlobal();      // Save to localStorage
-          loadCurrentUser(); // Re-load current user based on imported data
-          initPinFlow();     // Re-initialize PIN flow (important after state change)
-          renderInitialUI(); // Update the main UI
-          showToast('Импорт завершён', 'success');
+        function loadUserData() {
+            // Здесь будет запрос к вашему серверу для получения данных пользователя
+            document.getElementById('balanceUsdt').textContent = '0.00';
+            document.getElementById('balanceTon').textContent = '0.00';
+            if (userData) {
+                document.getElementById('userName').textContent = userData.first_name;
+            }
         }
-      }catch(err){
-        showToast('Ошибка при импорте файла', 'error');
-        console.error('Import error:', err);
-      }
-    };
-    reader.readAsText(file); // Read the file as text
-  };
-  input.click(); // Trigger the file input click
-}
-</script>
+
+        function deposit(currency) {
+            let modalBody = document.getElementById('depositModalBody');
+            let content = `
+                <h6>Пополнение ${currency}</h6>
+                <p>Минимальная сумма: 10 ${currency}</p>
+                <p>Сеть: ${currency === 'USDT' ? 'TRON (TRC20)' : 'The Open Network'}</p>
+                <div class="row g-2 mb-3">
+                    <div class="col-4"><button class="btn btn-outline-primary w-100" onclick="selectAmount(10, '${currency}')">10 ${currency}</button></div>
+                    <div class="col-4"><button class="btn btn-outline-primary w-100" onclick="selectAmount(25, '${currency}')">25 ${currency}</button></div>
+                    <div class="col-4"><button class="btn btn-outline-primary w-100" onclick="selectAmount(50, '${currency}')">50 ${currency}</button></div>
+                    <div class="col-4"><button class="btn btn-outline-primary w-100" onclick="selectAmount(100, '${currency}')">100 ${currency}</button></div>
+                    <div class="col-4"><button class="btn btn-outline-primary w-100" onclick="selectAmount(250, '${currency}')">250 ${currency}</button></div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Другая сумма:</label>
+                    <input type="number" class="form-control" id="customAmount" placeholder="Введите сумму" min="10">
+                </div>
+                <button class="btn btn-primary w-100" onclick="processDeposit('${currency}')">Получить адрес для оплаты</button>
+            `;
+            modalBody.innerHTML = content;
+            new bootstrap.Modal(document.getElementById('depositModal')).show();
+        }
+
+        function selectAmount(amount, currency) {
+            document.getElementById('customAmount').value = amount;
+        }
+
+        function processDeposit(currency) {
+            let amount = document.getElementById('customAmount').value;
+            if (!amount || amount < 10) {
+                alert(`Минимальная сумма 10 ${currency}`);
+                return;
+            }
+            
+            // Здесь будет запрос к серверу для получения адреса
+            alert(`Запрос на пополнение ${amount} ${currency} отправлен на сервер`);
+            
+            // Закрываем модальное окно
+            bootstrap.Modal.getInstance(document.getElementById('depositModal')).hide();
+        }
+
+        function startMailing() {
+            addMessageToChat("user", "Запуск рассылки...");
+            addMessageToChat("bot", "📱 Введите номера телефонов для рассылки.\n\nФормат ввода:\n+79991234567 ;\n89991234567 ;");
+            
+            // Здесь будет логика обработки рассылки
+        }
+
+        function openProfile() {
+            let profileInfo = `
+                👤 Ваш профиль\n
+                ━━━━━━━━━━━━━━━━\n
+                Имя: ${userData?.first_name || 'Неизвестно'}\n
+                USDT Баланс: 0.00\n
+                TON Баланс: 0.00\n
+                ━━━━━━━━━━━━━━━━\n
+                💎 Цены:\n
+                • 1 SMS = 1 USDT\n
+                • 1 SMS = 1.63 TON
+            `;
+            addMessageToChat("bot", profileInfo);
+        }
+
+        function sendMessage() {
+            let input = document.getElementById('messageInput');
+            let message = input.value.trim();
+            if (message) {
+                addMessageToChat("user", message);
+                // Здесь будет отправка сообщения на сервер
+                input.value = '';
+            }
+        }
+
+        function addMessageToChat(sender, text) {
+            let chat = document.getElementById('chatContainer');
+            let messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'bot-message'}`;
+            messageDiv.innerHTML = `<strong>${sender === 'user' ? 'Вы' : 'Бот'}:</strong> ${text}`;
+            chat.appendChild(messageDiv);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function logout() {
+            if (confirm("Вы уверены, что хотите выйти?")) {
+                window.location.reload();
+            }
+        }
+
+        // Инициализация при загрузке страницы
+        window.onload = init;
+    </script>
 </body>
 </html>
