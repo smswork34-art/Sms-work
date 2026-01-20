@@ -1,5 +1,5 @@
 // Конфигурация
-const API_BASE_URL = 'https://smswork34-art.github.io/Sms-work/api';
+const API_BASE_URL = 'http://localhost:5000/api';
 let userId = null;
 let userToken = null;
 let userData = null;
